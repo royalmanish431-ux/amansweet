@@ -1,0 +1,139 @@
+/**
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+import { useState } from 'react';
+import { useMenuData } from './hooks/useMenuData';
+import MenuItemComponent from './components/MenuItem';
+import { Search, ShoppingCart, MessageCircle, X, Trash2 } from 'lucide-react';
+import { MenuItem, CartItem } from './data';
+
+export default function App() {
+  const { data: menuData, loading, error } = useMenuData();
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+
+  const categories = ['All', ...Array.from(new Set(menuData.map(item => item.category)))];
+
+  const filteredData = menuData.filter(item => {
+    const matchesCategory = selectedCategory === 'All' || item.category === selectedCategory;
+    const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          item.nativeName.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
+
+  const addToCart = (item: MenuItem) => {
+    setCart(prev => {
+      const existing = prev.find(i => i.id === item.id);
+      if (existing) {
+        return prev.map(i => i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i);
+      }
+      return [...prev, { ...item, quantity: 1 }];
+    });
+  };
+
+  const removeFromCart = (itemId: string) => {
+    setCart(prev => prev.filter(i => i.id !== itemId));
+  };
+
+  const shareOnWhatsApp = () => {
+    const message = cart.map(item => `${item.name} (${item.quantity})${item.offer ? ` - Offer: ${item.offer}` : ''} - ₹${item.priceFull || item.priceHalf}`).join('\n');
+    const total = cart.reduce((sum, item) => sum + (parseInt(item.priceFull || item.priceHalf || '0') * item.quantity), 0);
+    const text = `*Aman Sweet* - Order Request:\n\n${message}\n\n*Total: ₹${total}*\n\n_Thank you for ordering with us!_`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+  };
+
+  if (loading) {
+    return <div className="p-12 text-center text-gray-600">Loading menu...</div>;
+  }
+
+  if (error) {
+    return <div className="p-12 text-center text-red-600">Error loading menu: {error}</div>;
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 pb-20">
+      <header className="bg-red-600 p-6 text-white text-center relative">
+        <h1 className="text-3xl font-bold mb-1">Aman Sweet</h1>
+        <p className="opacity-90">Live Digital Menu & Catalogue</p>
+        
+        <button
+          className="absolute top-6 right-6 flex items-center gap-1 bg-white text-red-600 px-3 py-1 rounded-full font-bold text-sm shadow-sm"
+          onClick={() => setIsCartOpen(true)}
+        >
+          <ShoppingCart size={18} />
+          <span>{cart.length}</span>
+        </button>
+
+        <div className="mt-4 relative max-w-md mx-auto">
+          <input
+            type="text"
+            placeholder="Search item (e.g. Samosa, Chowmein, Pizza)..."
+            className="w-full pl-10 pr-4 py-2 rounded-full text-gray-900 bg-white"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          <Search className="absolute left-3 top-2.5 text-gray-400" size={20} />
+        </div>
+      </header>
+
+      <div className="p-6">
+        <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+          {categories.map(category => (
+            <button
+              key={category}
+              onClick={() => setSelectedCategory(category)}
+              className={`px-4 py-2 rounded-full whitespace-nowrap ${
+                selectedCategory === category
+                  ? 'bg-red-600 text-white'
+                  : 'bg-white text-gray-700 border border-gray-200'
+              }`}
+            >
+              {category}
+            </button>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredData.map(item => (
+            <MenuItemComponent key={item.id} item={item} addToCart={addToCart} />
+          ))}
+        </div>
+      </div>
+
+      {/* Floating button removed as cart is now in header */}
+
+
+      {isCartOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-end md:items-center justify-center p-4">
+          <div className="bg-white w-full max-w-md rounded-2xl p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold">Your Cart</h2>
+              <button onClick={() => setIsCartOpen(false)}><X /></button>
+            </div>
+            <div className="space-y-4 max-h-60 overflow-y-auto">
+              {cart.map(item => (
+                <div key={item.id} className="flex justify-between items-center">
+                  <span>{item.name} x {item.quantity}</span>
+                  <div className="flex items-center gap-4">
+                    <span>₹{parseInt(item.priceFull || item.priceHalf || '0') * item.quantity}</span>
+                    <button onClick={() => removeFromCart(item.id)} className="text-red-500"><Trash2 size={18}/></button>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <button
+              onClick={shareOnWhatsApp}
+              className="w-full mt-6 bg-green-600 text-white py-3 rounded-full flex items-center justify-center gap-2"
+            >
+              <MessageCircle /> Share Order on WhatsApp
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
