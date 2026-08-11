@@ -6,7 +6,7 @@
 import { useState } from 'react';
 import { useMenuData } from './hooks/useMenuData';
 import MenuItemComponent from './components/MenuItem';
-import { Search, ShoppingCart, MessageCircle, X, Trash2 } from 'lucide-react';
+import { Search, ShoppingCart, MessageCircle, X, Trash2, Mic } from 'lucide-react';
 import { MenuItem, CartItem } from './data';
 
 export default function App() {
@@ -39,11 +39,34 @@ export default function App() {
     setCart(prev => prev.filter(i => i.id !== itemId));
   };
 
+  const openCart = () => {
+    const password = prompt("Please enter the password to open the cart:");
+    if (password === "Aman") {
+      setIsCartOpen(true);
+    } else if (password !== null) {
+      alert("Incorrect password!");
+    }
+  };
+
   const shareOnWhatsApp = () => {
     const message = cart.map(item => `${item.name} (${item.quantity})${item.offer ? ` - Offer: ${item.offer}` : ''} - ₹${item.priceFull || item.priceHalf}`).join('\n');
     const total = cart.reduce((sum, item) => sum + (parseInt(item.priceFull || item.priceHalf || '0') * item.quantity), 0);
     const text = `*Aman Sweet* - Order Request:\n\n${message}\n\n*Total: ₹${total}*\n\n_Thank you for ordering with us!_`;
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+  };
+
+  const startVoiceSearch = () => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'en-US';
+      recognition.start();
+      recognition.onresult = (event: any) => {
+        setSearchQuery(event.results[0][0].transcript);
+      };
+    } else {
+      alert('Voice search not supported in this browser.');
+    }
   };
 
   if (loading) {
@@ -62,7 +85,7 @@ export default function App() {
         
         <button
           className="absolute top-6 right-6 flex items-center gap-1 bg-white text-red-600 px-3 py-1 rounded-full font-bold text-sm shadow-sm"
-          onClick={() => setIsCartOpen(true)}
+          onClick={openCart}
         >
           <ShoppingCart size={18} />
           <span>{cart.length}</span>
@@ -72,11 +95,17 @@ export default function App() {
           <input
             type="text"
             placeholder="Search item (e.g. Samosa, Chowmein, Pizza)..."
-            className="w-full pl-10 pr-4 py-2 rounded-full text-gray-900 bg-white"
+            className="w-full pl-10 pr-10 py-2 rounded-full text-gray-900 bg-white"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
           <Search className="absolute left-3 top-2.5 text-gray-400" size={20} />
+          <button
+            onClick={startVoiceSearch}
+            className="absolute right-3 top-2.5 text-gray-400 hover:text-red-600"
+          >
+            <Mic size={20} />
+          </button>
         </div>
       </header>
 

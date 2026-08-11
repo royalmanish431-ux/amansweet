@@ -14,35 +14,31 @@ export function useMenuData() {
     try {
       const response = await fetch(`${CSV_URL}&_=${new Date().getTime()}`);
       const csvText = await response.text();
+      const rows = csvText.split('\n');
 
-      Papa.parse(csvText, {
-        header: false,
-        skipEmptyLines: true,
-        complete: (results) => {
-          // The structure is based on the user's HTML code:
-          // row[0]: id, row[2]: category, row[3]: hindi, row[4]: english, 
-          // row[5]: portion, row[6]: halfPrice, row[7]: fullPrice
-          const rawData = results.data as string[][];
-          // Skip the first row (headers)
-          const dataRows = rawData.slice(1);
-          const formattedData = dataRows.map((row) => ({
-            id: row[0],
-            category: row[2] || 'Other',
-            nativeName: row[3] || '',
-            name: row[4] || '',
-            portion: row[5] || '-',
-            priceHalf: row[6] || '-',
-            priceFull: row[7] || '-',
-            offer: row[8] || '',
-          }));
-          setData(formattedData);
-          setLoading(false);
-        },
-        error: (err) => {
-          setError(err.message);
-          setLoading(false);
-        }
+      const formattedData = rows.slice(1).map((row, index) => {
+        const columns = row.split(',').map(col => col.replace(/^"|"$/g, '').trim());
+        
+        const seqId = columns[1] ? columns[1].trim() : '';
+        const imageUrl = seqId ? `https://raw.githubusercontent.com/royalmanish431-ux/amansweet/main/${seqId}` : '';
+        
+        console.log('Parsed Image:', seqId, 'URL:', imageUrl);
+
+        return {
+          id: (index + 1).toString(),
+          category: columns[2] ? columns[2].trim() : 'Other',
+          nativeName: columns[3] ? columns[3].trim() : '',
+          name: columns[4] ? columns[4].trim() : '',
+          portion: columns[5] ? columns[5].trim() : '-',
+          priceHalf: columns[6] ? columns[6].trim() : '',
+          priceFull: columns[7] ? columns[7].trim() : '',
+          offer: columns[8] ? columns[8].trim() : '',
+          imageName: seqId
+        };
       });
+
+      setData(formattedData);
+      setLoading(false);
     } catch (err) {
       setError('Failed to fetch data');
       setLoading(false);
