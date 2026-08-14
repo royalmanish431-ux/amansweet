@@ -163,6 +163,9 @@ export default function App() {
           </div>
         </div>
       )}
+      <footer className="border-t border-gray-200 mt-10 p-6 text-center text-gray-500 text-sm">
+        &copy; {new Date().getFullYear()} Aman Sweet. All rights reserved.
+      </footer>
     </div>
   );
 }
