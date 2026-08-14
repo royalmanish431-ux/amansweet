@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useMenuData } from './hooks/useMenuData';
 import MenuItemComponent from './components/MenuItem';
 import { Search, ShoppingCart, MessageCircle, X, Trash2, Mic } from 'lucide-react';
@@ -15,6 +15,8 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const categories = ['All', ...Array.from(new Set(menuData.map(item => item.category)))];
 
@@ -48,11 +50,27 @@ export default function App() {
     }
   };
 
-  const shareOnWhatsApp = () => {
+  const shareOnWhatsApp = async () => {
     const message = cart.map(item => `${item.name} (${item.quantity})${item.offer ? ` - Offer: ${item.offer}` : ''} - ₹${item.priceFull || item.priceHalf}`).join('\n');
     const total = cart.reduce((sum, item) => sum + (parseInt(item.priceFull || item.priceHalf || '0') * item.quantity), 0);
     const text = `*Aman Sweet* - Order Request:\n\n${message}\n\n*Total: ₹${total}*\n\n_Thank you for ordering with us!_`;
-    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+    
+    if (navigator.canShare && navigator.canShare({ files: selectedFile ? [selectedFile] : [] })) {
+      try {
+        await navigator.share({
+          title: 'Aman Sweet Order',
+          text: text,
+          files: selectedFile ? [selectedFile] : []
+        });
+      } catch (error) {
+        if ((error as Error).name !== 'AbortError') {
+          console.error('Error sharing:', error);
+          window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+        }
+      }
+    } else {
+      window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+    }
   };
 
   const startVoiceSearch = () => {
@@ -154,6 +172,12 @@ export default function App() {
                 </div>
               ))}
             </div>
+            
+            <div className="mt-4 p-3 border-2 border-dashed border-gray-200 rounded-lg text-center cursor-pointer hover:border-green-500" onClick={() => fileInputRef.current?.click()}>
+              <input type="file" ref={fileInputRef} onChange={(e) => setSelectedFile(e.target.files?.[0] || null)} accept="image/*" className="hidden" />
+              <p className="text-sm text-gray-500">{selectedFile ? selectedFile.name : 'Attach Payment/Photo (Optional)'}</p>
+            </div>
+
             <button
               onClick={shareOnWhatsApp}
               className="w-full mt-6 bg-green-600 text-white py-3 rounded-full flex items-center justify-center gap-2"
