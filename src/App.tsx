@@ -8,6 +8,7 @@ import { useMenuData } from './hooks/useMenuData';
 import MenuItemComponent from './components/MenuItem';
 import { Search, ShoppingCart, MessageCircle, X, Trash2, Mic } from 'lucide-react';
 import { MenuItem, CartItem } from './data';
+import 'swiper/element/bundle';
 
 export default function App() {
   const { data: menuData, loading, error } = useMenuData();
@@ -16,7 +17,13 @@ export default function App() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [notification, setNotification] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const showNotification = (message: string) => {
+    setNotification(message);
+    setTimeout(() => setNotification(null), 3000);
+  };
 
   const categories = ['All', ...Array.from(new Set(menuData.map(item => item.category)))];
 
@@ -31,8 +38,10 @@ export default function App() {
     setCart(prev => {
       const existing = prev.find(i => i.id === item.id);
       if (existing) {
+        showNotification(`${item.name} added to cart`);
         return prev.map(i => i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i);
       }
+      showNotification(`${item.name} added to cart`);
       return [...prev, { ...item, quantity: 1 }];
     });
   };
@@ -97,37 +106,81 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
-      <header className="bg-red-600 p-6 text-white text-center relative">
-        <h1 className="text-3xl font-bold mb-1">Aman Sweet</h1>
-        <p className="opacity-90">Live Digital Menu & Catalogue</p>
-        
-        <button
-          className="absolute top-6 right-6 flex items-center gap-1 bg-white text-red-600 px-3 py-1 rounded-full font-bold text-sm shadow-sm"
-          onClick={openCart}
-        >
-          <ShoppingCart size={18} />
-          <span>{cart.length}</span>
-        </button>
-
-        <div className="mt-4 relative max-w-md mx-auto">
-          <input
-            type="text"
-            placeholder="Search item (e.g. Samosa, Chowmein, Pizza)..."
-            className="w-full pl-10 pr-10 py-2 rounded-full text-gray-900 bg-white"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-          <Search className="absolute left-3 top-2.5 text-gray-400" size={20} />
+      <header className="relative p-6 text-white text-center overflow-hidden">
+        <img 
+          src="/src/assets/images/header_3d_sweets_bg_1786805389446.jpg" 
+          alt="" 
+          className="absolute inset-0 w-full h-full object-cover opacity-30" 
+        />
+        <div className="absolute inset-0 bg-red-600/90"></div>
+        <div className="relative z-10">
+          {notification && (
+            <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 bg-green-600 text-white py-3 px-6 rounded-xl shadow-2xl animate-pulse">
+              {notification}
+            </div>
+          )}
+          <h1 className="text-3xl font-bold mb-1">Aman Sweet</h1>
+          <p className="opacity-90">Live Digital Menu & Catalogue</p>
+          
           <button
-            onClick={startVoiceSearch}
-            className="absolute right-3 top-2.5 text-gray-400 hover:text-red-600"
+            className="absolute top-6 right-6 flex items-center gap-1 bg-white text-red-600 px-3 py-1 rounded-full font-bold text-sm shadow-sm"
+            onClick={openCart}
           >
-            <Mic size={20} />
+            <ShoppingCart size={18} />
+            <span>{cart.length}</span>
           </button>
+
+          <div className="mt-4 relative max-w-md mx-auto">
+            <input
+              type="text"
+              placeholder="Search item (e.g. Samosa, Chowmein, Pizza)..."
+              className="w-full pl-10 pr-10 py-2 rounded-full text-gray-900 bg-white"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <Search className="absolute left-3 top-2.5 text-gray-400" size={20} />
+            <button
+              onClick={startVoiceSearch}
+              className="absolute right-3 top-2.5 text-gray-400 hover:text-red-600"
+            >
+              <Mic size={20} />
+            </button>
+          </div>
         </div>
       </header>
 
       <div className="p-6">
+        {/* Banner Section */}
+        <div className="mb-8">
+          <swiper-container
+            slides-per-view="1"
+            pagination="true"
+            autoplay='{"delay": 3000, "disableOnInteraction": true}'
+            loop="true"
+            class="rounded-3xl shadow-sm"
+          >
+            {[
+              { src: "/src/assets/images/banner_welcome_1786803598245.jpg", alt: "Welcome", title: "Welcome to", subtitle: "Aman Sweet" },
+              { src: "/src/assets/images/banner_sweets_1786803618867.jpg", alt: "Sweets", title: "Delicious", subtitle: "Sweets" },
+              { src: "/src/assets/images/banner_confectionery_1786803635703.jpg", alt: "Confectionery", title: "Fresh", subtitle: "Confectionery" },
+              { src: "/src/assets/images/banner_offers_1786803653557.jpg", alt: "Offers", title: "New Offers", subtitle: "Coming Soon" },
+              { src: "/src/assets/images/banner_thankyou_1786803670668.jpg", alt: "Thank You", title: "Thank you", subtitle: "for visiting" },
+            ].map((banner, index) => (
+              <swiper-slide key={index}>
+                <div className="bg-gradient-to-br from-orange-50 via-white to-green-50 p-4 rounded-3xl border border-gray-100 shadow-sm flex items-center h-48">
+                  <div className="flex-1 pr-2">
+                    <h3 className="font-bold text-lg text-gray-800">{banner.title}</h3>
+                    <p className="font-black text-xl text-red-600">{banner.subtitle}</p>
+                  </div>
+                  <div className="w-1/2">
+                    <img src={banner.src} alt={banner.alt} className="w-full h-32 object-cover rounded-2xl shadow-md" />
+                  </div>
+                </div>
+              </swiper-slide>
+            ))}
+          </swiper-container>
+        </div>
+
         <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
           {categories.map(category => (
             <button
