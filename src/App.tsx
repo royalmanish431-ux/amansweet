@@ -110,12 +110,12 @@ export default function App() {
         <img 
           src="/src/assets/images/header_3d_sweets_bg_1786805389446.jpg" 
           alt="" 
-          className="absolute inset-0 w-full h-full object-cover opacity-30" 
+          className="absolute inset-0 w-full h-full object-cover opacity-20" 
         />
-        <div className="absolute inset-0 bg-red-600/90"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-teal-900 to-blue-900/90"></div>
         <div className="relative z-10">
           {notification && (
-            <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 bg-green-600 text-white py-3 px-6 rounded-xl shadow-2xl animate-pulse">
+            <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 bg-teal-600 text-white py-3 px-6 rounded-xl shadow-2xl animate-pulse">
               {notification}
             </div>
           )}
@@ -123,7 +123,7 @@ export default function App() {
           <p className="opacity-90">Live Digital Menu & Catalogue</p>
           
           <button
-            className="absolute top-6 right-6 flex items-center gap-1 bg-white text-red-600 px-3 py-1 rounded-full font-bold text-sm shadow-sm"
+            className="absolute top-6 right-6 flex items-center gap-1 bg-white text-teal-900 px-3 py-1 rounded-full font-bold text-sm shadow-sm"
             onClick={openCart}
           >
             <ShoppingCart size={18} />
@@ -141,7 +141,7 @@ export default function App() {
             <Search className="absolute left-3 top-2.5 text-gray-400" size={20} />
             <button
               onClick={startVoiceSearch}
-              className="absolute right-3 top-2.5 text-gray-400 hover:text-red-600"
+              className="absolute right-3 top-2.5 text-gray-400 hover:text-teal-600"
             >
               <Mic size={20} />
             </button>
@@ -155,25 +155,20 @@ export default function App() {
           <swiper-container
             slides-per-view="1"
             pagination="true"
-            autoplay='{"delay": 3000, "disableOnInteraction": true}'
+            autoplay='{"delay": 3000, "disableOnInteraction": false}'
             loop="true"
-            class="rounded-3xl shadow-sm"
+            class="rounded-3xl shadow-sm h-40"
           >
             {[
-              { src: "/src/assets/images/banner_welcome_1786803598245.jpg", alt: "Welcome", title: "Welcome to", subtitle: "Aman Sweet" },
-              { src: "/src/assets/images/banner_sweets_1786803618867.jpg", alt: "Sweets", title: "Delicious", subtitle: "Sweets" },
-              { src: "/src/assets/images/banner_confectionery_1786803635703.jpg", alt: "Confectionery", title: "Fresh", subtitle: "Confectionery" },
-              { src: "/src/assets/images/banner_offers_1786803653557.jpg", alt: "Offers", title: "New Offers", subtitle: "Coming Soon" },
-              { src: "/src/assets/images/banner_thankyou_1786803670668.jpg", alt: "Thank You", title: "Thank you", subtitle: "for visiting" },
+              { src: "/src/assets/images/banner_sweets_1_1786819988690.jpg", alt: "Welcome", title: "Welcome to", subtitle: "Aman Sweet" },
+              { src: "/src/assets/images/banner_confectionery_1_1786820004012.jpg", alt: "Confectionery", title: "Fresh", subtitle: "Confectionery" },
             ].map((banner, index) => (
               <swiper-slide key={index}>
-                <div className="bg-gradient-to-br from-orange-50 via-white to-green-50 p-4 rounded-3xl border border-gray-100 shadow-sm flex items-center h-48">
-                  <div className="flex-1 pr-2">
-                    <h3 className="font-bold text-lg text-gray-800">{banner.title}</h3>
-                    <p className="font-black text-xl text-red-600">{banner.subtitle}</p>
-                  </div>
-                  <div className="w-1/2">
-                    <img src={banner.src} alt={banner.alt} className="w-full h-32 object-cover rounded-2xl shadow-md" />
+                <div className="relative rounded-3xl overflow-hidden h-40">
+                  <img src={banner.src} alt={banner.alt} className="w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-black/20 flex flex-col justify-center px-6">
+                    <h3 className="font-bold text-lg text-white">{banner.title}</h3>
+                    <p className="font-black text-2xl text-orange-400">{banner.subtitle}</p>
                   </div>
                 </div>
               </swiper-slide>
@@ -188,7 +183,7 @@ export default function App() {
               onClick={() => setSelectedCategory(category)}
               className={`px-4 py-2 rounded-full whitespace-nowrap ${
                 selectedCategory === category
-                  ? 'bg-red-600 text-white'
+                  ? 'bg-teal-600 text-white'
                   : 'bg-white text-gray-700 border border-gray-200'
               }`}
             >
@@ -233,7 +228,7 @@ export default function App() {
 
             <button
               onClick={shareOnWhatsApp}
-              className="w-full mt-6 bg-green-600 text-white py-3 rounded-full flex items-center justify-center gap-2"
+              className="w-full mt-6 bg-teal-600 text-white py-3 rounded-full flex items-center justify-center gap-2"
             >
               <MessageCircle /> Share Order on WhatsApp
             </button>
