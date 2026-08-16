@@ -63,17 +63,37 @@ export default function App() {
     }
   };
 
-  const shareOnWhatsApp = async () => {
+  const shareOrder = async () => {
     const message = cart.map(item => `${item.name} (${item.quantity})${item.offer ? ` - Offer: ${item.offer}` : ''} - ₹${item.priceFull || item.priceHalf}`).join('\n');
     const total = cart.reduce((sum, item) => sum + (parseInt(item.priceFull || item.priceHalf || '0') * item.quantity), 0);
     const text = `*Aman Sweet* - Order Request:\n\n${message}\n\n*Total: ₹${total}*\n\n_Thank you for ordering with us!_`;
     
-    if (navigator.canShare && navigator.canShare({ files: selectedFile ? [selectedFile] : [] })) {
+    let files: File[] = [];
+    
+    // Convert selected user file to File if it exists
+    if (selectedFile) {
+        files.push(selectedFile);
+    }
+    
+    // Try to fetch images for items
+    try {
+        const imagePromises = cart.filter(item => item.imageName).map(async (item) => {
+            const response = await fetch(`/src/assets/images/${item.imageName}`);
+            const blob = await response.blob();
+            return new File([blob], item.imageName || 'image.jpg', { type: blob.type });
+        });
+        const itemFiles = await Promise.all(imagePromises);
+        files = [...files, ...itemFiles];
+    } catch (e) {
+        console.error('Error fetching item images:', e);
+    }
+
+    if (navigator.canShare && navigator.canShare({ files: files, text: text })) {
       try {
         await navigator.share({
           title: 'Aman Sweet Order',
           text: text,
-          files: selectedFile ? [selectedFile] : []
+          files: files
         });
       } catch (error) {
         if ((error as Error).name !== 'AbortError') {
@@ -208,7 +228,7 @@ export default function App() {
             </div>
 
             <button
-              onClick={shareOnWhatsApp}
+              onClick={shareOrder}
               className="w-full mt-6 bg-teal-600 text-white py-3 rounded-full flex items-center justify-center gap-2"
             >
               <MessageCircle /> Share Order on WhatsApp
