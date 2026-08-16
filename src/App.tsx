@@ -150,32 +150,6 @@ export default function App() {
       </header>
 
       <div className="p-6">
-        {/* Banner Section */}
-        <div className="mb-8">
-          <swiper-container
-            slides-per-view="1"
-            pagination="true"
-            autoplay='{"delay": 3000, "disableOnInteraction": false}'
-            loop="true"
-            class="rounded-3xl shadow-sm h-40"
-          >
-            {[
-              { src: "/src/assets/images/banner_sweets_1_1786819988690.jpg", alt: "Welcome", title: "Welcome to", subtitle: "Aman Sweet" },
-              { src: "/src/assets/images/banner_confectionery_1_1786820004012.jpg", alt: "Confectionery", title: "Fresh", subtitle: "Confectionery" },
-            ].map((banner, index) => (
-              <swiper-slide key={index}>
-                <div className="relative rounded-3xl overflow-hidden h-40">
-                  <img src={banner.src} alt={banner.alt} className="w-full h-full object-cover" />
-                  <div className="absolute inset-0 bg-black/20 flex flex-col justify-center px-6">
-                    <h3 className="font-bold text-lg text-white">{banner.title}</h3>
-                    <p className="font-black text-2xl text-orange-400">{banner.subtitle}</p>
-                  </div>
-                </div>
-              </swiper-slide>
-            ))}
-          </swiper-container>
-        </div>
-
         <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
           {categories.map(category => (
             <button
