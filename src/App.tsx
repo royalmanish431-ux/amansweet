@@ -50,6 +50,10 @@ export default function App() {
     setCart(prev => prev.filter(i => i.id !== itemId));
   };
 
+  const clearCart = () => {
+    setCart([]);
+  };
+
   const openCart = () => {
     const password = prompt("Please enter the password to open the cart:");
     if (password === "Aman") {
@@ -181,7 +185,10 @@ export default function App() {
           <div className="bg-white w-full max-w-md rounded-2xl p-6">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold">Your Cart</h2>
-              <button onClick={() => setIsCartOpen(false)}><X /></button>
+              <div className="flex items-center gap-2">
+                <button onClick={clearCart} className="text-gray-500 hover:text-red-500"><Trash2 size={20}/></button>
+                <button onClick={() => setIsCartOpen(false)}><X /></button>
+              </div>
             </div>
             <div className="space-y-4 max-h-60 overflow-y-auto">
               {cart.map(item => (
