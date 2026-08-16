@@ -55,12 +55,7 @@ export default function App() {
   };
 
   const openCart = () => {
-    const password = prompt("Please enter the password to open the cart:");
-    if (password === "Aman") {
-      setIsCartOpen(true);
-    } else if (password !== null) {
-      alert("Incorrect password!");
-    }
+    setIsCartOpen(true);
   };
 
   const shareOrder = async () => {
@@ -68,32 +63,12 @@ export default function App() {
     const total = cart.reduce((sum, item) => sum + (parseInt(item.priceFull || item.priceHalf || '0') * item.quantity), 0);
     const text = `*Aman Sweet* - Order Request:\n\n${message}\n\n*Total: ₹${total}*\n\n_Thank you for ordering with us!_`;
     
-    let files: File[] = [];
-    
-    // Convert selected user file to File if it exists
-    if (selectedFile) {
-        files.push(selectedFile);
-    }
-    
-    // Try to fetch images for items
-    try {
-        const imagePromises = cart.filter(item => item.imageName).map(async (item) => {
-            const response = await fetch(`/src/assets/images/${item.imageName}`);
-            const blob = await response.blob();
-            return new File([blob], item.imageName || 'image.jpg', { type: blob.type });
-        });
-        const itemFiles = await Promise.all(imagePromises);
-        files = [...files, ...itemFiles];
-    } catch (e) {
-        console.error('Error fetching item images:', e);
-    }
-
-    if (navigator.canShare && navigator.canShare({ files: files, text: text })) {
+    if (selectedFile && navigator.canShare && navigator.canShare({ files: [selectedFile] })) {
       try {
         await navigator.share({
-          title: 'Aman Sweet Order',
+          files: [selectedFile],
           text: text,
-          files: files
+          title: 'Aman Sweet Order'
         });
       } catch (error) {
         if ((error as Error).name !== 'AbortError') {
