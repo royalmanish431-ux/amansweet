@@ -55,7 +55,12 @@ export default function App() {
   };
 
   const openCart = () => {
-    setIsCartOpen(true);
+    const password = prompt("Please enter the password to open the cart:");
+    if (password === "Aman") {
+      setIsCartOpen(true);
+    } else if (password !== null) {
+      alert("Incorrect password!");
+    }
   };
 
   const shareOrder = async () => {
@@ -145,6 +150,14 @@ export default function App() {
               <Mic size={20} />
             </button>
           </div>
+          <a
+            href="https://amansweet.lovable.app"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-4 inline-block bg-red-600 text-white px-6 py-2 rounded-full font-bold text-sm shadow-sm"
+          >
+            Download App
+          </a>
         </div>
       </header>
 
